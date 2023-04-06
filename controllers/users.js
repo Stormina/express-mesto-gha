@@ -28,14 +28,14 @@ module.exports.createUser = (req, res) => {
   const {name, about, avatar} = req.body;
 
   User.create({name, about, avatar})
-    .then((user) => {
-      if (user) {
-        res.status(200).send({data: user})
-      } else {
+    .then((user) =>  res.status(200).send({data: user}))
+    .catch((err) => {
+      if (err.statusCode === 400) {
         res.status(400).send({message: 'Переданы некорректные данные'})
+      } else {
+        res.status(500).send({ message: err.message });
       }
     })
-    .catch((err) => res.status(500).send({message: err.message}))
 };
 
 module.exports.patchUser = (req, res) => {
