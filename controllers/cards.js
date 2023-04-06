@@ -29,12 +29,15 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findOneAndDelete(req.params.cardId)
-    .then((card) => res.status(200).send({data: card}))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Невалидный идентификатор карточки' });
-      } else if (err.statusCode === 404) {
+    .then((card) => {
+      if (card) {
+        res.status(200).send({data: card})
+      } else {
         res.status(404).send({ message: 'Карточка не найдена' });
+      }})
+    .catch((err) => {
+      if (err.name === 'ValidationError' || 'CastError') {
+        res.status(400).send({ message: 'Невалидный идентификатор карточки' });
       } else {
         res.status(500).send({ message: err.message });
       }
@@ -45,7 +48,7 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, {$addToSet: {likes: req.user._id}}, {new: true})
     .then((likes) => res.status(200).send({data: likes}))
     .catch((err) => {
-      if (err.statusCode === 400) {
+      if (err.name === 'ValidationError' || 'CastError') {
        res.status(400).send({ message: 'Переданы некорректные данные' });
      } else if (err.statusCode === 404) {
        res.status(404).send({ message: 'Карточка не найдена' });
@@ -59,7 +62,7 @@ module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, {$pull: {likes: req.user._id}}, {new: true})
     .then((likes) => res.status(200).send({data: likes}))
     .catch((err) => {
-      if (err.statusCode === 400) {
+      if (err.name === 'ValidationError' || 'CastError') {
        res.status(400).send({ message: 'Переданы некорректные данные' });
      } else if (err.statusCode === 404) {
        res.status(404).send({ message: 'Карточка не найдена' });
