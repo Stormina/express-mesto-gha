@@ -53,8 +53,14 @@ module.exports.createUser = (req, res) => {
 module.exports.patchUser = (req, res) => {
   const {name, about} = req.body;
 
-  User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
-    .then((user) => res.status(200).send({data: user}))
+  User.findByIdAndUpdate(req.user._id, {name, about}, {new: true, runValidators: true})
+    .then((user) => {
+      if (user) {
+        res.status(200).send({data: user})
+      } else {
+        return res.status(400).send({message: 'Переданы некорректные данные'})
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError' || 'CastError') {
        res.status(400).send({ message: 'Переданы некорректные данные' });
