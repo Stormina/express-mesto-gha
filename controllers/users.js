@@ -34,7 +34,13 @@ module.exports.createUser = (req, res) => {
   const {name, about, avatar} = req.body;
 
   User.create({name, about, avatar})
-    .then((user) => res.status(200).send({data: user}))
+    .then((user) => {
+      if (user) {
+        res.status(200).send({data: user})
+      } else {
+        return res.status(400).send({message: 'Переданы некорректные данные'})
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError' || 'CastError') {
         return res.status(400).send({message: 'Переданы некорректные данные'})

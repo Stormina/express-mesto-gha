@@ -24,7 +24,13 @@ module.exports.createCard = (req, res) => {
         res.status(400).send({message: 'Переданы некорректные данные'});
       }
     })
-    .catch((err) => res.status(500).send({message: err.message}))
+    .catch((err) => {
+      if (err.name === 'ValidationError' || 'CastError') {
+        return res.status(400).send({message: 'Переданы некорректные данные'})
+      } else {
+        return res.status(500).send({ message: err.message });
+      }
+    })
 };
 
 module.exports.deleteCard = (req, res) => {
