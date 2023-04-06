@@ -35,8 +35,8 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findOneAndDelete(req.params.cardId)
-    .then((card) => {
-      if (card) {
+    .then((card, cardId) => {
+      if (cardId) {
         res.status(200).send({data: card})
       } else {
         res.status(404).send({ message: 'Карточка не найдена' });
