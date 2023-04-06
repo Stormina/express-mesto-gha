@@ -43,7 +43,7 @@ module.exports.deleteCard = (req, res) => {
       }})
     .catch((err) => {
       if (err.name === 'ValidationError' || 'CastError') {
-        res.status(404).send({ message: 'Невалидный идентификатор карточки' });
+        res.status(400).send({ message: 'Невалидный идентификатор карточки' });
       } else {
         res.status(500).send({ message: err.message });
       }
