@@ -39,11 +39,11 @@ module.exports.deleteCard = (req, res) => {
       if (card) {
         res.status(200).send({data: card})
       } else {
-        res.status(400).send({ message: 'Карточка не найдена' });
+        res.status(404).send({ message: 'Карточка не найдена' });
       }})
     .catch((err) => {
       if (err.name === 'ValidationError' || 'CastError') {
-        res.status(400).send({ message: 'Невалидный идентификатор карточки' });
+        res.status(404).send({ message: 'Невалидный идентификатор карточки' });
       } else {
         res.status(500).send({ message: err.message });
       }
