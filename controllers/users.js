@@ -53,7 +53,7 @@ module.exports.patchUser = (req, res) => {
       return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });

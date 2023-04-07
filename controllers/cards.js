@@ -9,7 +9,7 @@ const {
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
-    .populate('owner')
+    .populate('owner', 'likes')
     .then((cards) => res.status(STATUS_OK).send(cards))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
@@ -20,7 +20,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(STATUS_OK).send(card))
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
