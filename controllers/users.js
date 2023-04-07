@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const {
   BAD_REQUEST_ERROR,
@@ -16,13 +17,12 @@ module.exports.getUserId = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
-        res.status(STATUS_OK).send({ data: user });
-      } else {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
+        return res.status(STATUS_OK).send({ data: user });
       }
+      return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
     })
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
@@ -35,7 +35,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
@@ -48,17 +48,15 @@ module.exports.patchUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
-        res.status(STATUS_OK).send({ data: user });
-      } else {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
+        return res.status(STATUS_OK).send({ data: user });
       }
+      return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
     })
     .catch((err) => {
-      if (err instanceof 'CastError') {
-        res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -68,16 +66,14 @@ module.exports.patchAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
-        res.status(STATUS_OK).send({ data: user });
-      } else {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
+        return res.status(STATUS_OK).send({ data: user });
       }
+      return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь не найден' });
     })
     .catch((err) => {
       if (err.statusCode === BAD_REQUEST_ERROR) {
-        res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };

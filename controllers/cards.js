@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const {
   BAD_REQUEST_ERROR,
@@ -19,7 +20,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(STATUS_OK).send(card))
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
@@ -36,7 +37,7 @@ module.exports.deleteCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
@@ -54,7 +55,7 @@ module.exports.likeCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
@@ -72,7 +73,7 @@ module.exports.dislikeCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err instanceof 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
