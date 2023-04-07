@@ -11,7 +11,7 @@ module.exports.getAllCards = (req, res) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.status(STATUS_OK).send(cards))
-    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send({ message: err.message }));
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -23,7 +23,7 @@ module.exports.createCard = (req, res) => {
       if (err instanceof mongoose.Error.CastError) {
         return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -40,15 +40,15 @@ module.exports.deleteCard = (req, res) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .then((likes, cardId) => {
-      if (cardId) {
+    .then((likes) => {
+      if (likes) {
         return res.status(STATUS_OK).send({ data: likes });
       }
       return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка не найдена' });
@@ -57,15 +57,15 @@ module.exports.likeCard = (req, res) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
 
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .then((likes, cardId) => {
-      if (cardId) {
+    .then((likes) => {
+      if (likes) {
         res.status(STATUS_OK).send({ data: likes });
       } else {
         res.status(NOT_FOUND_ERROR).send({ message: 'Карточка не найдена' });
@@ -75,7 +75,7 @@ module.exports.dislikeCard = (req, res) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
