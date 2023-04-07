@@ -49,10 +49,9 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((likes, cardId) => {
       if (cardId) {
-        res.status(STATUS_OK).send({ data: likes });
-      } else {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Карточка не найдена' });
+        return res.status(STATUS_OK).send({ data: likes });
       }
+      return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка не найдена' });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
