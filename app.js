@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
-const router = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
 const { loginValidation, userValidation } = require('./middlewares/validate');
+const router = require('./routes/index');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,14 +25,14 @@ app.use('/', router);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
+/* app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({
     message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
   });
   next();
-});
+}); */
 
 app.listen(PORT, () => {
   console.log(`Порт ${PORT}`);
