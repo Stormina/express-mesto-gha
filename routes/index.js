@@ -1,11 +1,13 @@
 const router = require('express').Router();
 const cardsRouter = require('./cards');
 const usersRouter = require('./users');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
 
-router.use('/cards', cardsRouter);
-router.use('/users', usersRouter);
-router.use((req, res) => {
-  res.status(404).send({ message: 'Страница по указанному маршруту не найдена' });
+router.use('/cards', UnauthorizedError, cardsRouter);
+router.use('/users', UnauthorizedError, usersRouter);
+router.use('/', () => {
+  throw new NotFoundError('Страница не найдена');
 });
 
 module.exports = router;
