@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 const router = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
@@ -8,10 +10,14 @@ const { loginValidation, userValidation } = require('./middlewares/validate');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+  useNewUrlParser: true,
+});
 
 app.post('/signin', loginValidation, login);
 app.post('/signup', userValidation, createUser);

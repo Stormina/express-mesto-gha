@@ -14,8 +14,9 @@ module.exports.getAllUsers = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь не найден');
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError({ message: 'Пользователь не найден' });
     })
     .then((user) => res.send({ data: user }))
     .catch(next);
@@ -36,29 +37,23 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  return User.findOne({ email })
-    .then((currentUser) => {
-      if (currentUser) {
-        next(new ConflictRequestError('Пользователь с таким email уже существует'));
-      }
-      bcrypt.hash(password, 10)
-        .then((hash) => User.create({
-          name, about, avatar, email, password: hash,
-        }))
-        .then((user) => res.send({
-          data: {
-            name: user.name,
-            about: user.about,
-            avatar: user.avatar,
-            email: user.email,
-          },
-        }));
-    })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         throw new ConflictRequestError('Пользователь с таким email уже существует');
-      }
+      } else next(err);
     })
+    .then((user) => res.send({
+      data: {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      },
+    }))
     .catch(next);
 };
 
@@ -69,12 +64,12 @@ module.exports.patchUser = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError({ message: 'Пользователь не найден' });
     })
-    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         throw new BadRequestError('Переданы некорректные данные');
       }
     })
+    .then((user) => res.send({ data: user }))
     .catch(next);
 };
 
@@ -82,13 +77,15 @@ module.exports.patchAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => res.send({ data: user }))
+    .orFail(() => {
+      throw new NotFoundError({ message: 'Пользователь не найден' });
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         throw new BadRequestError('Переданы некорректные данные');
       }
     })
+    .then((user) => res.send({ data: user }))
     .catch(next);
 };
 
@@ -100,7 +97,7 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expresIn: '7d' });
 
       res.cookie('jwt', token, {
-        maxAge: '7d',
+        maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       })
         .send({ message: 'Авторизация прошла успешно!' });
