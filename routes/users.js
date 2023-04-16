@@ -3,14 +3,14 @@ const { aboutValidation, avatarValidation, idValidation } = require('../middlewa
 
 const {
   getAllUsers,
-  getUser,
+  getCurrentUser,
   getUserId,
   patchUser,
   patchAvatar,
 } = require('../controllers/users');
 
 usersRouter.get('/', getAllUsers);
-usersRouter.get('/me', idValidation, getUser);
+usersRouter.get('/me', idValidation, getCurrentUser);
 usersRouter.get('/:userId', idValidation, getUserId);
 usersRouter.patch('/me', aboutValidation, patchUser);
 usersRouter.patch('/me/avatar', avatarValidation, patchAvatar);
