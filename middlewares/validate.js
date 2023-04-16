@@ -1,4 +1,13 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, CelebrateError } = require('celebrate');
+const validator = require('validator');
+
+const validate = (value) => {
+  const result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new CelebrateError('Некорректный адрес');
+};
 
 module.exports.loginValidation = celebrate({
   body: Joi.object().keys({
@@ -11,7 +20,7 @@ module.exports.userValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/https?:\/\/(w{3}\.)?[\w\-.~:/?#[\]@!$&'\\()*+,;=]/),
+    avatar: Joi.string().custom(validate),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -26,7 +35,7 @@ module.exports.idValidation = celebrate({
 module.exports.cardValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(/(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.(ru|com)))(:\d{2,5})?((\/.+)+)?\/?#?/),
+    link: Joi.string().required().custom(validate),
   }),
 });
 
@@ -39,6 +48,6 @@ module.exports.aboutValidation = celebrate({
 
 module.exports.avatarValidation = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(/https?:\/\/(w{3}\.)?[\w\-.~:/?#[\]@!$&'\\()*+,;=]/),
+    avatar: Joi.string().required().custom(validate),
   }),
 });
