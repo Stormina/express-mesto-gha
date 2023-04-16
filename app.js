@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
-const { login, createUser } = require('./controllers/users');
 const { loginValidation, userValidation } = require('./middlewares/validate');
+const { login, createUser } = require('./controllers/users');
 const router = require('./routes/index');
 
 const { PORT = 3000 } = process.env;

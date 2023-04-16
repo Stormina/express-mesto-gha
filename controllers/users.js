@@ -108,19 +108,33 @@ module.exports.patchAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
+  let userId;
 
-  return User.findUserByCredentials(email, password)
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expresIn: '7d' });
+      if (!user) {
+        throw new UnauthorizedError('Неправильные почта или пароль.');
+      }
+
+      userId = user._id;
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        throw new UnauthorizedError('Неправильные почта или пароль.');
+      }
+
+      const token = jwt.sign({ _id: userId }, 'some-secret-key', { expiresIn: '7d' });
 
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      })
-        .send({ message: 'Авторизация прошла успешно!' });
+      });
+
+      return res.send({ message: 'Всё верно!' });
     })
-    .catch(() => {
-      throw new UnauthorizedError('Переданы некорректные данные');
-    })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
