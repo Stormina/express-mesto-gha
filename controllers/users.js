@@ -32,14 +32,17 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.getUserId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (!user) {
+      if (user) {
+        res.send({ data: user });
+      } else {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequestError('Переданы не корректные данные');
+      } else {
+        next(err);
       }
     })
     .catch(next);
