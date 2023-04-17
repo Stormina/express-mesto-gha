@@ -45,32 +45,24 @@ module.exports.deleteCard = (req, res, next) => {
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError({ message: 'Карточка не найдена' });
-      }
-      res.send({ data: card });
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequestError('Переданы не корректные данные');
-      }
+    .then((likes) => {
+      res.send({ data: likes });
     })
     .catch(next);
 };
 
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError({ message: 'Карточка не найдена' });
-      }
-      res.send({ data: card });
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequestError('Переданы не корректные данные');
-      }
+    .then((likes) => {
+      res.send({ data: likes });
     })
     .catch(next);
 };
