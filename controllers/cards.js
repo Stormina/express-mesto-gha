@@ -47,22 +47,32 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail()
     .catch(() => {
-      throw new BadRequestError('Переданы не корректные данные');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((likes) => {
       res.send({ data: likes });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        throw new BadRequestError('Переданы не корректные данные');
+      }
+      next(err);
+    });
 };
 
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail()
     .catch(() => {
-      throw new BadRequestError('Переданы не корректные данные');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((likes) => {
       res.send({ data: likes });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        throw new BadRequestError('Переданы не корректные данные');
+      }
+      next(err);
+    });
 };

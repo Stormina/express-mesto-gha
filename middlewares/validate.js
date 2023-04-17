@@ -33,8 +33,8 @@ module.exports.idValidation = celebrate({
 });
 
 module.exports.cardIdValidation = celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().alphanum().length(24).hex(),
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24).hex(),
   }),
 });
 
