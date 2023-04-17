@@ -45,12 +45,11 @@ module.exports.deleteCard = (req, res, next) => {
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail()
-    .catch(() => {
-      throw new NotFoundError('Карточка не найдена');
-    })
-    .then((likes) => {
-      res.send({ data: likes });
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError({ message: 'Карточка не найдена' });
+      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
