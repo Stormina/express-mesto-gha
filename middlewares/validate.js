@@ -32,6 +32,12 @@ module.exports.idValidation = celebrate({
   }),
 });
 
+module.exports.cardIdValidation = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24).hex(),
+  }),
+});
+
 module.exports.cardValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),

@@ -26,31 +26,37 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError('Карточка не найдена');
+    })
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      } else if (card.owner.toString() !== req.user._id) {
+      if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Доступ запрещен');
       }
       Card.findOneAndDelete(req.params.cardId)
-        .then(() => res.send({ data: card }));
+        .then((item) => {
+          res.send({ data: item });
+        })
+        .catch(next);
     })
     .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError({ message: 'Карточка не найдена' });
-      }
-      res.send({ data: card });
+    .orFail()
+    .catch(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
+    .then((likes) => {
+      res.send({ data: likes });
+    })
+    /* .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequestError('Переданы не корректные данные');
       }
-    })
+    }) */
     .catch(next);
 };
 
