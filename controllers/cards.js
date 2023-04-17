@@ -47,7 +47,7 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail()
     .catch(() => {
-      throw new NotFoundError('Карточка не найдена');
+      throw new BadRequestError('Переданы не корректные данные');
     })
     .then((likes) => {
       res.send({ data: likes });
@@ -59,7 +59,7 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail()
     .catch(() => {
-      throw new NotFoundError('Карточка не найдена');
+      throw new BadRequestError('Переданы не корректные данные');
     })
     .then((likes) => {
       res.send({ data: likes });
