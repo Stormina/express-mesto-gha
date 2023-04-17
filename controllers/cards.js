@@ -52,11 +52,11 @@ module.exports.likeCard = (req, res, next) => {
     .then((likes) => {
       res.send({ data: likes });
     })
-    /* .catch((err) => {
+    .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequestError('Переданы не корректные данные');
       }
-    }) */
+    })
     .catch(next);
 };
 
