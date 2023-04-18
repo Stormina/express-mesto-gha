@@ -27,15 +27,14 @@ module.exports.deleteCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
-      } else if (card.owner.toString() !== req.user._id) {
-        throw new ForbiddenError('Доступ запрещен');
-      } else {
-        Card.findOneAndDelete(req.params.cardId)
-          .then((item) => {
-            res.send({ data: item });
-          })
-          .catch(next);
       }
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbiddenError('Доступ запрещен');
+      }
+      return Card.findOneAndDelete(req.params.cardId);
+    })
+    .then((item) => {
+      res.send({ data: item });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
