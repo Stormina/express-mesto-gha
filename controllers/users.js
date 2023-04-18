@@ -17,13 +17,13 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('Пользователь не найден'));
+        throw new NotFoundError('Пользователь не найден');
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequestError('Переданы не корректные данные');
+        next(new BadRequestError('Переданы не корректные данные'));
       } else next(err);
     });
 };
@@ -32,7 +32,7 @@ module.exports.getUserId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('Пользователь не найден'));
+        throw new NotFoundError('Пользователь не найден');
       }
       res.send({ data: user });
     })
@@ -42,8 +42,7 @@ module.exports.getUserId = (req, res, next) => {
       } else {
         next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 module.exports.createUser = (req, res, next) => {
