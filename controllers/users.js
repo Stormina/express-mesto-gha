@@ -17,30 +17,28 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+        next(new NotFoundError('Пользователь не найден'));
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         throw new BadRequestError('Переданы не корректные данные');
-      }
-    })
-    .catch(next);
+      } else next(err);
+    });
 };
 
 module.exports.getUserId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        throw new NotFoundError('Пользователь не найден');
+      if (!user) {
+        next(new NotFoundError('Пользователь не найден'));
       }
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        throw new BadRequestError('Переданы не корректные данные');
+        next(new BadRequestError('Переданы не корректные данные'));
       } else {
         next(err);
       }
@@ -53,24 +51,23 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
-    })
-      .then((user) => res.send({
-        data: {
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          email: user.email,
-        },
-      }))
-      .catch((err) => {
-        if (err.code === 11000) {
-          throw new ConflictRequestError('Пользователь с таким email уже существует');
-        }
-      }))
-    .catch(next);
+    }))
+    .then((user) => res.send({
+      data: {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      },
+    }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictRequestError('Пользователь с таким email уже существует'));
+      } else next(err);
+    });
 };
 
 module.exports.patchUser = (req, res, next) => {
@@ -85,10 +82,9 @@ module.exports.patchUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        throw new BadRequestError('Переданы некорректные данные');
-      }
-    })
-    .catch(next);
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else next(err);
+    });
 };
 
 module.exports.patchAvatar = (req, res, next) => {
@@ -103,10 +99,9 @@ module.exports.patchAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        throw new BadRequestError('Переданы некорректные данные');
-      }
-    })
-    .catch(next);
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
